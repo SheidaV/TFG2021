@@ -9,36 +9,43 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class SimpleProgram {
+    /* the default framework is embedded */
+    private static String framework = "embedded";
+    private static String protocol = "jdbc:derby:";
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws ClassNotFoundException {
+        System.out.println("SimpleApp starting in " + framework + " mode");
+
+        Connection conn = null;
+        ArrayList<Statement> statements = new ArrayList<Statement>(); // list of Statements, PreparedStatements
+        PreparedStatement psInsert;
+        PreparedStatement psUpdate;
+        Statement s;
+        ResultSet rs = null;
 
         try{
-            String framework = "embedded";
-            String protocol = "jdbc:derby:";
-            String dbName = "derbyDB";
-            ArrayList<Statement> statements = new ArrayList<Statement>();
-            PreparedStatement psInsert;
-            PreparedStatement psUpdate;
-            Statement s;
-            ResultSet rs = null;
-
-            // View classpath
-            String classpathStr = System.getProperty("java.class.path");
-            System.out.println(classpathStr);
-
             Properties props = new Properties(); // connection properties
+            // providing a user name and password is optional in the embedded
+            // and derbyclient frameworks
             props.put("user", "user1");
             props.put("password", "user1");
+            String dbName = "derbyDB";
 
-            Connection conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+
             System.out.println("Connected to and created database " + dbName);
+
+            // We want to control transactions manually. Autocommit is on by
+            // default in JDBC.
             conn.setAutoCommit(false);
 
+            /* Creating a statement object that we can use for running various
+             * SQL statements commands against the database.*/
             s = conn.createStatement();
             statements.add(s);
 
             // We create a table...
-            s.execute("create table digitalLibraries(dl varchar(50), name varchar(50), url varchar(150))");
+            s.execute("create table digitalLibraries(dl char(50), name varchar(50), url varchar(150) , PRIMARY KEY (dl))");
             /*digitalLibraries(dl,name,url); primaryKey(dl) */
             System.out.println("Created table digitalLibraries");
 
@@ -101,10 +108,11 @@ public class SimpleProgram {
 
             // Select data
             rs = s.executeQuery("SELECT * FROM digitalLibraries");
+/*
             String NoNumber; // street number retrieved from the database
             boolean failure = false;
 
-/*    if (!rs.next()){
+    if (!rs.next()){
       failure = true;
       System.out.println("No rows in ResultSet");
     }
@@ -121,13 +129,16 @@ public class SimpleProgram {
     if (!failure) {
       System.out.println("Verified the rows");
     }
-*/
+
             NoNumber = rs.getString(1);
             System.out.println( "The number is " + NoNumber);
-
+*/
             while (rs.next()){
                 System.out.println(rs.getString(1));
             }
+            // delete the table BORRAR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            s.execute("drop table digitalLibraries");
+            System.out.println("Dropped table digitalLibraries");
 
             conn.commit();
             System.out.println("Committed the transaction");
