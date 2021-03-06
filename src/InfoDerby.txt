@@ -1,0 +1,31 @@
+Info derby
+
+cd C:\Apache
+set JAVA_HOME=C:\Apache
+C:\> set DERBY_INSTALL=C:\Apache\db-derby-10.15.2.0-bin
+
+C:\> set CLASSPATH=%DERBY_INSTALL%\lib\derby.jar;%DERBY_INSTALL%\lib\derbytools.jar;%DERBY_INSTALL%\lib\derbyoptionaltools.jar;%DERBY_INSTALL%\lib\derbyshared.jar;.
+
+cd %DERBY_INSTALL%\bin
+
+C:\Apache\db-derby-10.15.2.0-bin\bin> setEmbeddedCP.bat
+
+java org.apache.derby.tools.sysinfo
+Mensaje de successful
+
+java org.apache.derby.tools.ij
+
+> CONNECT 'jdbc:derby:firstdb;create=true';
+
+> CREATE TABLE FIRSTTABLE (ID INT PRIMARY KEY, NAME VARCHAR(12));
+
+> INSERT INTO FIRSTTABLE VALUES (10,'TEN'),(20,'TWENTY'),(30,'THIRTY');
+
+> SELECT * FROM FIRSTTABLE;
+
+> SELECT * FROM FIRSTTABLE WHERE ID=20;
+
+> run 'MY_WRITTEN_SQL_QUERY.sql';
+
+> disconnect;
+> exit;
