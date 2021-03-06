@@ -14,39 +14,39 @@ primary key(idRef)
 */
 
 public class BibProgram {
+    private static String framework = "embedded";
+    private static String protocol = "jdbc:derby:";
+
     public static void main(String[] args) throws IOException, ParseException {
+        System.out.println("SimpleApp starting in " + framework + " mode");
+
+        Connection conn = null;
+        ArrayList<Statement> statements = new ArrayList<Statement>(); // list of Statements, PreparedStatements
+        PreparedStatement psInsert;
+        PreparedStatement psUpdate;
+        Statement s;
+        ResultSet rs = null;
+
         Reader reader = new FileReader("src/main/resources/savedrecs.bib");
-
         BibTeXParser bibtexParser = new BibTeXParser();
-
         BibTeXDatabase database = bibtexParser.parse(reader);
-
         Map<Key, BibTeXEntry> entryMap = database.getEntries();
-
         Collection<BibTeXEntry> entries = entryMap.values();
 
         if (entries!=null) {
             try{
-                String framework = "embedded";
-                String protocol = "jdbc:derby:";
+                Properties props = new Properties(); // connection properties
+                props.put("user", "user1");
+                props.put("password", "user1");
+                //props.put("derby.language.sequence.preallocator", "1");
+                //props.put("shutdown", true);
                 String dbName = "derbyDB";
-                ArrayList<Statement> statements = new ArrayList<Statement>();
-                PreparedStatement psInsert;
-                PreparedStatement psUpdate;
-                Statement s;
-                ResultSet rs = null;
 
                 // View classpath
                 String classpathStr = System.getProperty("java.class.path");
                 System.out.println(classpathStr);
 
-                Properties props = new Properties(); // connection properties
-                props.put("user", "user1");
-                props.put("password", "user1");
-                props.put("derby.language.sequence.preallocator", "1");
-                props.put("shutdown", true);
-
-                Connection conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+                conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
                 System.out.println("Connected to and created database " + dbName);
                 conn.setAutoCommit(false);
 
@@ -55,11 +55,12 @@ public class BibProgram {
 
 
                 // We create a table...
-                s.execute("create table referencesDL(idRef INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) NOT NULL, " +
-                        "author varchar(50), " +
-                        "doi varchar(50), year int, citeKey varchar(50), booktitle varchar(50), title varchar(50),  " +
-                        "journal varchar(50), keywords varchar(100), number int, numpages int, pages int, volume int," +
-                        "dl varchar(150), abstract varchar(1000), PRIMARY KEY (dl), FOREIGN KEY (dl) REFERENCES digitalLibraries(dl))");
+                //s.execute("create table referencesDL(idRef int(20)  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) NOT NULL, " +
+                s.execute("create table referencesDL(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY, author varchar(50), " +
+                        "doi varchar(50), citeKey varchar(50), booktitle varchar(50), title varchar(50), journal varchar(50), " +
+                        "keywords varchar(100), number INTEGER, numpages INTEGER, pages INTEGER, volume INTEGER, año INTEGER, " +
+                        "abstract varchar(1000), PRIMARY KEY (idRef))");
+                //dl varchar(150), ....., FOREIGN KEY (dl) REFERENCES digitalLibraries(dl))
                 /*
                 references(idRef,  abstract, author, doi, year, citeKey, booktitle,
                             title,  journal, keywords, number, numpages, pages, volume,dl)
@@ -72,13 +73,11 @@ public class BibProgram {
 
                 // parameter 1 is num (int), parameter 2 is addr (varchar)
                 psInsert = conn.prepareStatement(
-                        "insert into referencesDL values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "insert into referencesDL values (idRef, author, doi, citeKey, title , journal, number, numpages , pages , volume , año , abstract)");
 
                 statements.add(psInsert);
-                //ex int : psInsert.setInt(1, 1900);
 
-                psInsert.setString(2, "authorX");
-                psInsert.setString(3, "10.4018/IJDET.20210401.oa2");
+                ("authorX","10.4018/IJDET.20210401.oa2",1999,"citeKey","title","journal",11,22,33,44,1999,"abstract");
                 psInsert.executeUpdate();
                 System.out.println("Inserted author and doi ");
 
@@ -88,10 +87,6 @@ public class BibProgram {
                 while (rs.next()){
                     System.out.println(rs.getString(1));
                     System.out.println(rs.getString(2));
-                }
-                rs = s.executeQuery("SELECT * FROM digitalLibraries");
-                while (rs.next()){
-                    System.out.println(rs.getString(1));
                 }
 
                 // delete the table BORRAR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -114,12 +109,10 @@ public class BibProgram {
                 }
             }
         }
-        int cont = 0;
         Key abstractKey = new Key("abstract");
         Key keywordsKey = new Key("keywords");
         Key numpagesKey = new Key("numpages");
-        for(BibTeXEntry entry : entries){
-            System.out.println(cont++);
+        /*for(BibTeXEntry entry : entries){
             // attributes:
             // idRef,  , author, doi, year, citeKey, booktitle, title,
             // journal, keywords, number, numpages, pages, volume, abstract, dl
@@ -153,6 +146,7 @@ public class BibProgram {
             if (numpages != null) System.out.println(numpages.toUserString().replaceAll("[{-}]", ""));
 
         }
+        */
         reader.close();
 
     }

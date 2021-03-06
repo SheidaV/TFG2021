@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Fri Mar 05 17:28:47 CET 2021:
- Iniciando instancia a816c00e-0178-0338-5512-00000f109ba0 de Derby, versión The Apache Software Foundation - Apache Derby - 10.15.2.0 - (1873585): 
-en el directorio de base de datos C:\Apache\db-derby-10.15.2.0-bin\demo\programs\TFG\derbyDB con el cargador de clases jdk.internal.loader.ClassLoaders$AppClassLoader@30946e09
+Fri Mar 05 19:05:10 CET 2021:
+ Iniciando instancia a816c00e-0178-0390-934c-00000f200000 de Derby, versiÃ³n The Apache Software Foundation - Apache Derby - 10.15.2.0 - (1873585): 
+en el directorio de base de datos C:\Apache\db-derby-10.15.2.0-bin\demo\programs\TFG\derbyDB con el cargador de clases jdk.internal.loader.ClassLoaders$AppClassLoader@368239c8
 Cargado desde file:/C:/Apache/db-derby-10.15.2.0-bin/lib/derby.jar
 java.vendor=AdoptOpenJDK
 java.runtime.version=11.0.10+9
