@@ -59,20 +59,23 @@ public class BibProgram {
 
                 // We create a table...
                 //s.execute("create table referencesDL(idRef int(20)  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) NOT NULL, " +
-
-                s.execute("create table referencesDL(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY, type varchar(50), author varchar(200), " +
-                        "doi varchar(50), citeKey varchar(50), booktitle varchar(100), title varchar(200), journal varchar(100), " +
-                        "keywords varchar(500), number INT, numpages INT, pages INT, volume INT, año INT, " +
-                        "abstract varchar(2000), PRIMARY KEY (idRef))");
-                //dl varchar(150), ....., FOREIGN KEY (dl) REFERENCES digitalLibraries(dl))
+                try {
+                    s.execute("create table referencesDL(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY, type varchar(50), author varchar(200), " +
+                            "doi varchar(50), citeKey varchar(50), booktitle varchar(100), title varchar(200), journal varchar(100), " +
+                            "keywords varchar(500), number INT, numpages INT, pages INT, volume INT, año INT, " +
+                            "abstract varchar(2000), dl char(50), PRIMARY KEY (idRef), CONSTRAINT DL_FK FOREIGN KEY (dl) REFERENCES digitalLibraries (dl))");
+                    System.out.println("Created table referencesDL");
+                } catch (SQLException t  ){
+                    if (t.getSQLState().equals("X0Y32"))
+                        System.out.println("Table referencesDL exists");
+                    else System.out.println("Error en la creación de tabla");
+                }
                 /*
                 references(idRef,  abstract, author, doi, year, citeKey, booktitle,
                             title,  journal, keywords, number, numpages, pages, volume,dl)
                 {dl} references digitalLibraries
                 primary key(idRef)
                 */
-                System.out.println("Created table referencesDL");
-
                 // and add a few rows...
                 // parameter 1 is num (int), parameter 2 is addr (varchar)
                 //psInsert = conn.prepareStatement
@@ -81,7 +84,6 @@ public class BibProgram {
                 StringBuilder values = new StringBuilder();
 
                 String query = "";
-//,doi,citeKey,title,journal,number,numpages,pages,volume,año,abstract) VALUES ('author X','10.4018/IJDET.20210401.oa2','citeKey','title','journal',11,22,33,44,1999,'abstract')";
                 for(BibTeXEntry entry : entries){
                     atributs = new StringBuilder("INSERT INTO referencesDL(");
                     values = new StringBuilder(") VALUES (");
@@ -151,6 +153,9 @@ public class BibProgram {
                         atributs.append(", abstract");
                         values.append(", '").append(abstractE.toUserString().replaceAll("[{-}]", "")).append("'");
                     }
+                    atributs.append(", dl");
+                    values.append(", 'ACM'");
+
                     values.append(")");
                     query = atributs.toString() + values;
                     System.out.println(query);
@@ -168,9 +173,9 @@ public class BibProgram {
                     System.out.println(rs.getString(3));
                 }
 
-                // delete the table BORRAR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                s.execute("drop table referencesDL");
-                System.out.println("Dropped table referencesDL");
+                // delete the table
+                //s.execute("drop table referencesDL");
+                //System.out.println("Dropped table referencesDL");
 
                 conn.commit();
                 System.out.println("Committed the transaction");
