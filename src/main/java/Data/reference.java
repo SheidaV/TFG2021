@@ -15,30 +15,12 @@ public class reference {
     static String path;
     static String nameDL;
 
-    static String framework = "embedded";
-    static String dbName = "derbyDB";
-    static String protocol = "jdbc:derby:";
-    static Properties props = iniProperties(); // connection properties
-
-
     static Key abstractKey = new Key("abstract");
     static Key keywordsKey = new Key("keywords");
     static Key numpagesKey = new Key("numpages");
     // Key citeKey = new Key("\\cite");
 
-    private static Properties iniProperties() {
-        Properties props = new Properties();
-        props.put("user", "user1");
-        props.put("password", "user1");
-        return props;
-    }
-
-    public static void main(String[] args) throws IOException, ParseException {
-        pedirInfo();
-        importar(path,nameDL);
-    }
-
-    public static void pedirInfo() {
+    public static String[] pedirInfo() {
         System.out.println("Escribir el path absoluto donde se encuentra el fichero a exportar: ");
         Scanner entrada=new Scanner(System.in);
         path = entrada.nextLine();
@@ -58,66 +40,18 @@ public class reference {
         } catch (Exception e) {
             System.out.println("No se ha escrito un número.");
         }
+        return new String[]{path, nameDL};
     }
 
-    private static void importar(String path, String nameDL) throws IOException, ParseException {
-        System.out.println("SimpleApp starting in " + framework + " mode");
-
-        Connection conn;
-        ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
-        Statement s;
-        ResultSet rs;
-
+    static void importar(String path, String nameDL, Statement s) throws IOException, ParseException, SQLException {
         Reader reader = new FileReader(path);
         BibTeXParser bibtexParser = new BibTeXParser(); //addd Exception
         BibTeXDatabase database = bibtexParser.parse(reader);
         Map<Key, BibTeXEntry> entryMap = database.getEntries();
         Collection<BibTeXEntry> entries = entryMap.values();
-
-        try{
-            String classpathStr = System.getProperty("java.class.path");
-            System.out.println(classpathStr);
-
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-            System.out.println("Connected to and created database " + dbName);
-            conn.setAutoCommit(false);
-
-            s = conn.createStatement();
-            statements.add(s);
-
-            // Create a table if not exists...
-            createTable(s);
-
-            // add rows of file
-            for(BibTeXEntry entry : entries){
-                insertRow(nameDL, s, entry);
-            }
-            // Select data
-            rs = getAllData(s);
-
-            while (rs.next()){
-                System.out.println(rs.getString(1));
-                System.out.println(rs.getString(2));
-                System.out.println(rs.getString(3));
-            }
-
-            // delete the table
-            //dropTable(s);
-
-            conn.commit();
-            System.out.println("Committed the transaction");
-
-        } catch (SQLException e){
-            System.out.println("Error");
-            while (e != null) {
-                System.err.println("\n----- SQLException -----");
-                System.err.println("  SQL State:  " + e.getSQLState());
-                System.err.println("  Error Code: " + e.getErrorCode());
-                System.err.println("  Message:    " + e.getMessage());
-                // for stack traces, refer to derby.log or uncomment this:
-                //e.printStackTrace(System.err);
-                e = e.getNextException();
-            }
+        // add rows of file
+        for(BibTeXEntry entry : entries){
+            insertRow(nameDL, s, entry);
         }
         reader.close();
     }
@@ -128,7 +62,7 @@ public class reference {
         return rs;
     }
 
-    private static void insertRow(String nameDL, Statement s, BibTeXEntry entry) throws SQLException {
+    static void insertRow(String nameDL, Statement s, BibTeXEntry entry) throws SQLException {
         String query;
         StringBuilder atributsOfRow;
         StringBuilder valuesOfRow;

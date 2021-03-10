@@ -8,7 +8,6 @@ import java.util.Properties;
 public class digitalLibrary {
 
     public static Map<Integer, String> DLs = null;
-    static String framework = "embedded";
     static String dbName = "derbyDB";
     static String protocol = "jdbc:derby:";
     static Properties props = iniProperties(); // connection properties
@@ -20,68 +19,30 @@ public class digitalLibrary {
         return props;
     }
 
-    static {
-        try {
-            DLs = iniDLs();
-        } catch (SQLException throwables) {
-            System.out.println("La table digitalLibraries no existe");
-            throwables.printStackTrace();
-        }
-    }
+    static { DLs = iniDLs(); }
 
-    static Map<Integer, String> iniDLs() throws SQLException {
-        //agregamos los nombres de las librerias - Se puede hacer un metodo get digitalLibrerias de la BD
-        // si se añade o eliminan DLs
+    static Map<Integer, String> iniDLs() {
+        //agregamos los nombres de las librerias
         Map<Integer, String> ret = new HashMap<>();
         Connection conn;
         Statement s;
-        conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-        conn.setAutoCommit(true);
-
-        // Statement object for running various SQL statements commands against the database.
-        s = conn.createStatement();
-        ResultSet rs;
-        rs = getNames(s);
-        int i = 1;
-        while (rs.next()){
-            ret.put(i++, rs.getString(1));
-        }
-        return ret;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Program starting in " + framework + " mode");
-        Connection conn;
-        ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
-        Statement s;
-        try{
+        try {
             conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-            System.out.println("Connected to and created database " + dbName);
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(true);
 
             // Statement object for running various SQL statements commands against the database.
             s = conn.createStatement();
-            statements.add(s);
-            // Create table digitalLibraries if not exist
-            if (createTable(s))
-                //insert rows in table
-                insertRows(conn, statements);
-
-            conn.commit();
-            System.out.println("Committed the transaction");
-
-        } catch (SQLException e){
-            System.out.println("Error");
-            while (e != null) {
-                System.err.println("\n----- SQLException -----");
-                System.err.println("  SQL State:  " + e.getSQLState());
-                System.err.println("  Error Code: " + e.getErrorCode());
-                System.err.println("  Message:    " + e.getMessage());
-                // for stack traces, refer to derby.log or uncomment this:
-                //e.printStackTrace(System.err);
-                e = e.getNextException();
+            ResultSet rs;
+            rs = getNames(s);
+            int i = 1;
+            while (rs.next()){
+                ret.put(i++, rs.getString(1));
             }
+        } catch (SQLException throwables) {
+            System.out.println("Error en inicializar las DLs");
+            throwables.printStackTrace();
         }
+        return ret;
     }
 
     public static ResultSet getAllData(Statement s) throws SQLException {
