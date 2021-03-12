@@ -1,12 +1,10 @@
-package Data;
-import org.jbibtex.*;
+import Data.*;
+import org.jbibtex.ParseException;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
-
-import static Data.digitalLibrary.*;
-import static Data.reference.*;
+import java.util.ArrayList;
+import java.util.Properties;
 
 public class main {
 
@@ -23,11 +21,12 @@ public class main {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        pruebaDigitalLibrary();
+
+        ini();
         pruebaReference();
     }
 
-    private static void pruebaDigitalLibrary() {
+    private static void ini() {
         System.out.println("Program starting in " + framework + " mode");
         Connection conn;
         ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
@@ -40,11 +39,16 @@ public class main {
             // Statement object for running various SQL statements commands against the database.
             s = conn.createStatement();
             statements.add(s);
-            // Create table digitalLibraries if not exist
-            if (createTable(s))
-                //insert rows in table
-                insertRows(conn, statements);
 
+            crearTablas(s,conn,statements);
+            //deleteTables(s,conn,statements);
+
+            /*ResultSet rs = digitalLibrary.getAllData(s);
+            System.out.println("Información de la tabla:");
+            while (rs.next()) {
+                for (int i = 1; i<= 3; i++)
+                    System.out.println(rs.getString(i));
+            }*/
             conn.commit();
             System.out.println("Committed the transaction");
 
@@ -63,7 +67,7 @@ public class main {
     }
 
     private static void pruebaReference() throws IOException, ParseException {
-        String[] aux = pedirInfo();
+        String[] aux = reference.pedirInfo();
         String path = aux[0];
         String nameDL = aux[1];
         System.out.println("SimpleApp starting in " + framework + " mode");
@@ -83,21 +87,17 @@ public class main {
             s = conn.createStatement();
             statements.add(s);
 
-            // Create a table if not exists...
-            createTable(s);
-
-            importar(path, nameDL, s);
+            reference.importar(path, nameDL, s);
             // Select data
-            rs = getAllData(s);
+            rs = reference.getAllData(s);
 
             while (rs.next()){
-                System.out.println(rs.getString(1));
-                System.out.println(rs.getString(2));
-                System.out.println(rs.getString(3));
+                for(int i= 1; i<17; i++) {
+                    System.out.println(rs.getString(i));
+                }
             }
-
             // delete the table
-            //dropTable(s);
+            //reference.dropTable(s);
 
             conn.commit();
             System.out.println("Committed the transaction");
@@ -114,6 +114,26 @@ public class main {
                 e = e.getNextException();
             }
         }
+    }
 
+    private static void crearTablas(Statement s, Connection conn, ArrayList<Statement> statements) throws SQLException {
+        // Create table digitalLibraries if not exist
+        if (digitalLibrary.createTable(s))
+            //insert rows in table
+            digitalLibrary.insertRows(conn, statements);
+        researcher.createTable(s);
+        reference.createTable(s);
+        author.createTable(s);
+        venue.createTable(s);
+        affiliation.createTable(s);
+    }
+
+    private static void deleteTables(Statement s, Connection conn, ArrayList<Statement> statements) throws SQLException {
+        venue.dropTable(s);
+        affiliation.dropTable(s);
+        author.dropTable(s);
+        researcher.dropTable(s);
+        reference.dropTable(s);
+        digitalLibrary.dropTable(s);
     }
 }

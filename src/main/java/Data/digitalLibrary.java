@@ -28,11 +28,15 @@ public class digitalLibrary {
         Statement s;
         try {
             conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-            conn.setAutoCommit(true);
+            ArrayList<Statement> statements = new ArrayList<>();
+            System.out.println("Connected to and created database " + dbName);
+            conn.setAutoCommit(false);
 
             // Statement object for running various SQL statements commands against the database.
             s = conn.createStatement();
+            statements.add(s);
             ResultSet rs;
+
             rs = getNames(s);
             int i = 1;
             while (rs.next()){
@@ -57,14 +61,10 @@ public class digitalLibrary {
         return rs;
     }
 
-    public static void sqlCommand(Statement s, String s2, String s3) throws SQLException {
-        s.execute(s2);
-        System.out.println(s3);
-    }
-
     public static boolean createTable(Statement s) {
         try {
-            sqlCommand(s, "create table digitalLibraries(dl char(50), name varchar(50), url varchar(150) , PRIMARY KEY (dl))", "Created table digitalLibraries");
+            s.execute("create table digitalLibraries(dl char(50), name varchar(50), url varchar(150) , PRIMARY KEY (dl))");
+            System.out.println("Created table digitalLibraries");
             return true;
 
         } catch (SQLException t ) {
@@ -117,7 +117,8 @@ public class digitalLibrary {
     }
 
     public static void dropTable(Statement s) throws SQLException {
-        sqlCommand(s, "drop table digitalLibraries", "Dropped table digitalLibraries");
+        s.execute("drop table digitalLibraries");
+        System.out.println("Dropped table digitalLibraries");
     }
 
 }

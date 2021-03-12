@@ -4,45 +4,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class venue {
-    //Venue name unique - comprobar if exists y afegirla si no esta
+    /*Venue name unique - comprobar if exists y afegirla si no esta
+    create table venues(id varchar(50), name varchar(50),
+    PRIMARY KEY (id));*/
 
-    private static void createTable(Statement s) {
+    public static void createTable(Statement s) {
         try {
-            sqlCommand(s, "create table venues(id varchar(50) UNIQUE, name varchar(50), " +
-                    "PRIMARY KEY (name) ", "Created table venues");
+            s.execute("create table venues(id varchar(50), name varchar(50) UNIQUE, PRIMARY KEY (id) ) ");
+            System.out.println("Created table venues");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))
                 System.out.println("Table venues exists");
             else System.out.println("Error en la creación de table venues");
         }
     }
-
-    private static void sqlCommand(Statement s, String s2, String s3) throws SQLException {
-        s.execute(s2);
-        System.out.println(s3);
+    public static void dropTable(Statement s) throws SQLException {
+        s.execute("drop table venues");
+        System.out.println("Dropped table venues");
     }
-/*    create table authors(
-
-            name varchar(50),
-
-    PRIMARY KEY (name)
-
-);
-
-    create table affiliations(
-
-            name varchar(50),
-
-    PRIMARY KEY (name)
-
-);
-
-    create table venues(
-
-            id varchar(50),
-    name varchar(50),
-
-    PRIMARY KEY (name)
-
-);*/
 }

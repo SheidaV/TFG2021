@@ -18,7 +18,7 @@ public class reference {
     static Key abstractKey = new Key("abstract");
     static Key keywordsKey = new Key("keywords");
     static Key numpagesKey = new Key("numpages");
-    // Key citeKey = new Key("\\cite");
+    static Key citeKey = new Key("\\cite{key}");
 
     public static String[] pedirInfo() {
         System.out.println("Escribir el path absoluto donde se encuentra el fichero a exportar: ");
@@ -43,7 +43,7 @@ public class reference {
         return new String[]{path, nameDL};
     }
 
-    static void importar(String path, String nameDL, Statement s) throws IOException, ParseException, SQLException {
+    public static void importar(String path, String nameDL, Statement s) throws IOException, ParseException, SQLException {
         Reader reader = new FileReader(path);
         BibTeXParser bibtexParser = new BibTeXParser(); //addd Exception
         BibTeXDatabase database = bibtexParser.parse(reader);
@@ -51,24 +51,32 @@ public class reference {
         Collection<BibTeXEntry> entries = entryMap.values();
         // add rows of file
         for(BibTeXEntry entry : entries){
-            insertRow(nameDL, s, entry);
+            String authorsRet = insertRow(nameDL, s, entry);
+            author.insertRows(authorsRet, getLastID(s), s);
         }
         reader.close();
     }
 
-    private static ResultSet getAllData(Statement s) throws SQLException {
+    public static ResultSet getAllData(Statement s) throws SQLException {
         ResultSet rs;
         rs = s.executeQuery("SELECT * FROM referencias");
         return rs;
     }
 
-    static void insertRow(String nameDL, Statement s, BibTeXEntry entry) throws SQLException {
+    static int getLastID(Statement s) throws SQLException {
+        ResultSet rs;
+        rs = s.executeQuery("SELECT idref FROM REFERENCIAS ORDER BY idref DESC");
+        return rs.getInt("idRef");
+    }
+
+    static String insertRow(String nameDL, Statement s, BibTeXEntry entry) throws SQLException {
+        String ret = "";
         String query;
         StringBuilder atributsOfRow;
         StringBuilder valuesOfRow;
         Key type = entry.getType();
         Value title = entry.getField(BibTeXEntry.KEY_TITLE);
-        Value author = entry.getField(BibTeXEntry.KEY_AUTHOR);
+        Value authors = entry.getField(BibTeXEntry.KEY_AUTHOR);
         Value doi = entry.getField(BibTeXEntry.KEY_DOI);
         Value year = entry.getField(BibTeXEntry.KEY_YEAR);
         Value booktitle = entry.getField(BibTeXEntry.KEY_BOOKTITLE);
@@ -79,15 +87,17 @@ public class reference {
         Value abstractE = entry.getField(abstractKey);
         Value keywords = entry.getField(keywordsKey);
         Value numpages = entry.getField(numpagesKey);
-        //Value cite = entry.getField(citeKey);
+        Value cite = entry.getField(citeKey);
 
         atributsOfRow = new StringBuilder("INSERT INTO referencias(type");
         valuesOfRow = new StringBuilder(") VALUES (").append("'").append(type).append("'");
-        if (author != null) {
-            String aux = author.toUserString().replaceAll("[<EOF>]", "");
-            //El simbolo ' dentro del abstract provoca errores
+        if (authors != null) {
+            //EL espacio EOF provoca errores!!!
+            String aux = authors.toUserString().replaceAll("[\n]", "");;
+            aux = aux.replaceAll("[{-}]", "");
             atributsOfRow.append(", author");
-            valuesOfRow.append(", '").append(aux.replaceAll("[{-}]", "")).append("'");
+            valuesOfRow.append(", '").append(aux).append("'");
+            ret = aux;
         }
         if (doi != null) {
             atributsOfRow.append(", doi");
@@ -119,7 +129,7 @@ public class reference {
         }
         if (pages != null) {
             atributsOfRow.append(", pages");
-            valuesOfRow.append(", ").append(pages.toUserString().replaceAll("[{-}]", ""));
+            valuesOfRow.append(", '").append(pages.toUserString().replaceAll("[{-}]", "")).append("'");;
         }
         if (volume != null) {
             atributsOfRow.append(", volume");
@@ -135,19 +145,16 @@ public class reference {
             atributsOfRow.append(", abstract");
             valuesOfRow.append(", '").append(aux.replaceAll("[{-}]", "")).append("'");
         }
-        //if (cite != null) System.out.println("Cite es: " + cite);
+        if (cite != null) System.out.println("Cite es: " + cite);
         atributsOfRow.append(", dl");
         valuesOfRow.append(", '").append(nameDL).append("') ");
 
         query = atributsOfRow.toString() + valuesOfRow;
         System.out.println(query);
 
-        sqlCommand(s, query, "Inserted row with author, doi, ....");
-    }
-
-    private static void sqlCommand(Statement s, String s2, String s3) throws SQLException {
-        s.execute(s2);
-        System.out.println(s3);
+        s.execute(query);
+        System.out.println("Inserted row with author, doi, ....");
+        return ret;
     }
 
     /*
@@ -156,22 +163,23 @@ public class reference {
     {dl} references digitalLibraries
     primary key(idRef)
     */
-    private static void createTable(Statement s) {
+    public static void createTable(Statement s) {
         try {
-            sqlCommand(s, "create table referencias(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY, type varchar(50), " +
+
+            s.execute("create table referencias(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY, type varchar(50), " +
                     "author varchar(200), doi varchar(50), citeKey varchar(50), booktitle varchar(100), title varchar(200), " +
                     "journal varchar(100), keywords varchar(500), number INT, numpages INT, pages varchar(10), volume INT, " +
                     "año INT, abstract varchar(2000), dl char(50), PRIMARY KEY (idRef), " +
-                    "CONSTRAINT DL_FK FOREIGN KEY (dl) REFERENCES digitalLibraries (dl))", "Created table referencias");
+                    "CONSTRAINT DL_FK FOREIGN KEY (dl) REFERENCES digitalLibraries (dl))");
+            System.out.println("Created table referencias");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))
                 System.out.println("Table referencias exists");
             else System.out.println("Error en la creación de table referencias");
         }
     }
-    private static void dropTable(Statement s) throws SQLException {
-        sqlCommand(s, "drop table referencias", "Dropped table referencias");
+    public static void dropTable(Statement s) throws SQLException {
+        s.execute("drop table referencias");
+        System.out.println("Dropped table referencias");
     }
-
-
 }
