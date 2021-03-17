@@ -18,19 +18,18 @@ public class author {
             else System.out.println("Error en la creación de table authors");
         }
     }
-    public static void insertRows(String names, int idRef,Statement s) throws SQLException {
+    public static void insertRows(String[] names, int idRef, Statement s) throws SQLException {
         String query;
         String queryRow;
 
-        queryRow = "INSERT INTO author(idRef,name) VALUES (";
+        queryRow = "INSERT INTO authors(name,idRef) VALUES (";
 
-        String[] splitArray = names.split("and ");
-        for(String x : splitArray) {
+        for(String x : names) {
             query = queryRow +"'" + x + "', " + idRef + ")";
             System.out.println(query);
 
             s.execute(query);
-            System.out.println("Inserted row with name");
+            System.out.println("Inserted row with name in Authors");
         }
 
     }
@@ -39,4 +38,5 @@ public class author {
         s.execute("drop table authors");
         System.out.println("Dropped table authors");
     }
+
 }

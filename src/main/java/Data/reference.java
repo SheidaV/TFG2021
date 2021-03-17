@@ -8,7 +8,8 @@ import java.io.Reader;
 import java.sql.*;
 import java.util.*;
 
-import static Data.digitalLibrary.DLs;
+import static Data.digitalLibrary.getIDs;
+import static Data.digitalLibrary.getNames;
 
 public class reference {
 
@@ -20,19 +21,20 @@ public class reference {
     static Key numpagesKey = new Key("numpages");
     static Key citeKey = new Key("\\cite{key}");
 
-    public static String[] pedirInfo() {
+    public static String[] pedirInfo(Statement s) throws SQLException {
         System.out.println("Escribir el path absoluto donde se encuentra el fichero a exportar: ");
         Scanner entrada=new Scanner(System.in);
         path = entrada.nextLine();
         System.out.println("Path escogido: " + path);
         System.out.println("Escoger el número de la biblioteca de donde se exporta el archivo:");
-        for (int i = 1; i <= DLs.size(); i++)
-            System.out.println(i + ". " + DLs.get(i));
 
+        ArrayList<String> DLs = getNames(s);
+        for (int i = 0; i < DLs.size(); i++)
+            System.out.println(i+1 + ". " + DLs.get(i));
         try {
             int num=entrada.nextInt();
             if (num > 0 & num <= DLs.size()) {
-                nameDL = DLs.get(num);
+                nameDL = getIDs(s).get(num-1);
                 System.out.println("Se ha escogido " + nameDL);
             } else {
                 System.out.println("El numero no esta entre el 1 y el 6");
@@ -43,7 +45,7 @@ public class reference {
         return new String[]{path, nameDL};
     }
 
-    public static void importar(String path, String nameDL, Statement s) throws IOException, ParseException, SQLException {
+    public static void importar(String path, String nameDL, Statement s, Connection conn) throws IOException, ParseException, SQLException {
         Reader reader = new FileReader(path);
         BibTeXParser bibtexParser = new BibTeXParser(); //addd Exception
         BibTeXDatabase database = bibtexParser.parse(reader);
@@ -52,7 +54,12 @@ public class reference {
         // add rows of file
         for(BibTeXEntry entry : entries){
             String authorsRet = insertRow(nameDL, s, entry);
-            author.insertRows(authorsRet, getLastID(s), s);
+            String[] splitNames = researcher.insertRows(authorsRet,s);
+            conn.commit();
+            Statement s2 = conn.createStatement();
+            int q = getLastID(s2).getInt(1);
+            System.out.println(q);
+            author.insertRows(splitNames, q, s);
         }
         reader.close();
     }
@@ -63,10 +70,10 @@ public class reference {
         return rs;
     }
 
-    static int getLastID(Statement s) throws SQLException {
+    public static ResultSet getLastID(Statement s) throws SQLException {
         ResultSet rs;
-        rs = s.executeQuery("SELECT idref FROM REFERENCIAS ORDER BY idref DESC");
-        return rs.getInt("idRef");
+        rs = s.executeQuery("SELECT idRef FROM referencias ORDER BY idref DESC");
+        return rs;
     }
 
     static String insertRow(String nameDL, Statement s, BibTeXEntry entry) throws SQLException {
@@ -92,8 +99,7 @@ public class reference {
         atributsOfRow = new StringBuilder("INSERT INTO referencias(type");
         valuesOfRow = new StringBuilder(") VALUES (").append("'").append(type).append("'");
         if (authors != null) {
-            //EL espacio EOF provoca errores!!!
-            String aux = authors.toUserString().replaceAll("[\n]", "");;
+            String aux = authors.toUserString().replaceAll("[\n]", " ");
             aux = aux.replaceAll("[{-}]", "");
             atributsOfRow.append(", author");
             valuesOfRow.append(", '").append(aux).append("'");
@@ -154,6 +160,7 @@ public class reference {
 
         s.execute(query);
         System.out.println("Inserted row with author, doi, ....");
+        System.out.println(ret);
         return ret;
     }
 

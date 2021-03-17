@@ -1,6 +1,7 @@
 import Data.*;
 import org.jbibtex.ParseException;
 
+import javax.swing.plaf.nimbus.State;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,11 +18,12 @@ public class main {
         Properties props = new Properties();
         props.put("user", "user1");
         props.put("password", "user1");
+        //props.put("derby.language.sequence.preallocator", "1");
+        //props.put("shutdown", true);
         return props;
     }
 
-    public static void main(String[] args) throws IOException, ParseException {
-
+    public static void main(String[] args) throws IOException, ParseException, SQLException {
         ini();
         pruebaReference();
     }
@@ -66,28 +68,20 @@ public class main {
         }
     }
 
-    private static void pruebaReference() throws IOException, ParseException {
-        String[] aux = reference.pedirInfo();
-        String path = aux[0];
-        String nameDL = aux[1];
-        System.out.println("SimpleApp starting in " + framework + " mode");
-
-        Connection conn;
-        ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
-        Statement s;
-        ResultSet rs;
-        String classpathStr = System.getProperty("java.class.path");
-        System.out.println(classpathStr);
-
+    private static void pruebaReference() throws IOException, ParseException, SQLException {
         try{
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-            System.out.println("Connected to and created database " + dbName);
+
+            Connection conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+            Statement s = conn.createStatement();
             conn.setAutoCommit(false);
+            ResultSet rs;
+            String[] aux = reference.pedirInfo(s);
+            String path = aux[0];
+            String nameDL = aux[1];
+            System.out.println("SimpleApp starting in " + framework + " mode");
 
-            s = conn.createStatement();
-            statements.add(s);
 
-            reference.importar(path, nameDL, s);
+            reference.importar(path, nameDL, s,conn);
             // Select data
             rs = reference.getAllData(s);
 
