@@ -33,7 +33,8 @@ public class main {
         ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
         Statement s;
         try{
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props );
+            String url = "jdbc:derby:derbyDB;create=true";
+            conn = DriverManager.getConnection(url, props );
             System.out.println("Connected to and created database " + dbName);
             conn.setAutoCommit(false);
 

@@ -12,7 +12,7 @@ public class venue {
     public static void createTable(Statement s) {
         try {
             s.execute("create table venues(idVen INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
-                    " name varchar(70) UNIQUE, acronym varchar(20), PRIMARY KEY (idVen) ) ");
+                    " name varchar(100) UNIQUE, acronym varchar(20), PRIMARY KEY (idVen) ) ");
             System.out.println("Created table venues");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))

@@ -26,27 +26,13 @@ public class company {
 
 
     public static int insertRow(Statement s, String name) throws SQLException {
-        try{
+
             String query = "INSERT INTO companies(name) VALUES (\'" + name + "\')";
             System.out.println(query);
             s.execute(query);
             System.out.println("Inserted row with idCom, name in companies");
             s.getConnection().commit();
-        } catch (SQLException e) {
-            if (e.getSQLState().equals("23505"))
-                System.out.println("Company exists");
-            else {
-                while (e != null) {
-                    System.err.println("\n----- SQLException -----");
-                    System.err.println("  SQL State:  " + e.getSQLState());
-                    System.err.println("  Error Code: " + e.getErrorCode());
-                    System.err.println("  Message:    " + e.getMessage());
-                    // for stack traces, refer to derby.log or uncomment this:
-                    //e.printStackTrace(System.err);
-                    e = e.getNextException();
-                }
-            }
-        }
+
         ResultSet rs = s.executeQuery("SELECT idCom FROM companies where name = '" + name + "'");
         rs.next();
         return rs.getInt(1);

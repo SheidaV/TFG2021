@@ -133,7 +133,7 @@ public class reference {
                 atributsOfRow.append(", keywords");
                 valuesOfRow.append(", '").append(keywords.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if (number != null) {
+            if (!number.toUserString().replaceAll("[{-}]", "").equals("")) {
                 atributsOfRow.append(", number");
                 valuesOfRow.append(", ").append(number.toUserString().replaceAll("[{-}]", ""));
             }
@@ -145,7 +145,7 @@ public class reference {
                 atributsOfRow.append(", pages");
                 valuesOfRow.append(", '").append(pages.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if (volume != null) {
+            if (!volume.toUserString().replaceAll("[{-}]", "").equals("")) {
                 atributsOfRow.append(", volume");
                 valuesOfRow.append(", ").append(volume.toUserString().replaceAll("[{-}]", ""));
             }
@@ -179,8 +179,6 @@ public class reference {
                 System.err.println("  SQL State:  " + e.getSQLState());
                 System.err.println("  Error Code: " + e.getErrorCode());
                 System.err.println("  Message:    " + e.getMessage());
-                // for stack traces, refer to derby.log or uncomment this:
-                //e.printStackTrace(System.err);
                 e = e.getNextException();
             }
         }
@@ -195,10 +193,11 @@ public class reference {
         try {
             s.execute("create table referencias(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, " +
                     "INCREMENT BY 1), type varchar(50), doi varchar(50), citeKey varchar(50), " +
-                    "idVen int, title varchar(200), journal varchar(100), keywords varchar(500), number INT, " +
-                    "numpages INT, pages varchar(10), volume INT, año INT, abstract varchar(2000), idDL int, " +
+                    "idVen int, title varchar(200), journal varchar(100), keywords varchar(1000), number INT, " +
+                    "numpages INT, pages varchar(20), volume INT, año INT, abstract varchar(2000), idDL int, " +
                     "PRIMARY KEY (idRef), CONSTRAINT DL_FK_R FOREIGN KEY (idDL) REFERENCES digitalLibraries (idDL)," +
                     "CONSTRAINT VEN_FK_R FOREIGN KEY (idVen) REFERENCES venues (idVen))");
+            //UNIQUE EN DOI
             System.out.println("Created table referencias");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))

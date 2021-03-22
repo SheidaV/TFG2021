@@ -9,7 +9,7 @@ public class researcher {
     public static void createTable(Statement s) {
         try {
             s.execute("create table researchers( idRes INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
-                    "name varchar(50), " +
+                    "name varchar(50) unique, " +
                     "PRIMARY KEY (idRes)) ");
             System.out.println("Created table researchers");
         } catch (SQLException t  ){
@@ -49,8 +49,6 @@ public class researcher {
                     System.err.println("  SQL State:  " + e.getSQLState());
                     System.err.println("  Error Code: " + e.getErrorCode());
                     System.err.println("  Message:    " + e.getMessage());
-                    // for stack traces, refer to derby.log or uncomment this:
-                    //e.printStackTrace(System.err);
                     e = e.getNextException();
                 }
             }
