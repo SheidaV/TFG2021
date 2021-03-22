@@ -1,9 +1,6 @@
 package Data;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public class digitalLibrary {
 
@@ -15,7 +12,7 @@ public class digitalLibrary {
 
     public static ArrayList<String> getNames(Statement s) throws SQLException {
         ArrayList<String> ret = new ArrayList<>();
-        ResultSet rs = s.executeQuery("SELECT name FROM digitalLibraries ORDER BY dl asc ");
+        ResultSet rs = s.executeQuery("SELECT name FROM digitalLibraries ORDER BY idDL asc ");
         while(rs.next()) {
             ret.add(rs.getString("name"));
         }
@@ -24,16 +21,17 @@ public class digitalLibrary {
 
     public static ArrayList<String> getIDs(Statement s) throws SQLException {
         ArrayList<String> ret = new ArrayList<>();
-        ResultSet rs = s.executeQuery("SELECT dl FROM digitalLibraries ORDER BY dl asc ");
+        ResultSet rs = s.executeQuery("SELECT idDL FROM digitalLibraries ORDER BY idDL asc ");
         while(rs.next()) {
-            ret.add(rs.getString("dl"));
+            ret.add(rs.getString("idDL"));
         }
         return ret;
     }
 
     public static boolean createTable(Statement s) {
         try {
-            s.execute("create table digitalLibraries(dl char(50), name varchar(50), url varchar(150) , PRIMARY KEY (dl))");
+            s.execute("create table digitalLibraries(idDL int," +
+                    " name varchar(50), url varchar(150) , PRIMARY KEY (idDL))");
             System.out.println("Created table digitalLibraries");
             return true;
 
@@ -49,41 +47,36 @@ public class digitalLibrary {
         psInsert = conn.prepareStatement("insert into digitalLibraries values (?, ?, ?)");
         statements.add(psInsert);
 
-        psInsert.setString(1, "ACM");
+        psInsert.setString(1, "1");
         psInsert.setString(2, "ACM DL");
         psInsert.setString(3, "https://dl.acm.org/");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('ACM', 'ACM DL', 'https://dl.acm.org/') ");
 
-        psInsert.setString(1, "IEEExplore");
+        psInsert.setString(1, "2");
         psInsert.setString(2, "IEE Explore");
         psInsert.setString(3, "https://ieeexplore.ieee.org/Xplore/home.jsp");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('IEEE', 'IEEE Xplore', 'https://ieeexplore.ieee.org/Xplore/home.jsp') ");
 
-        psInsert.setString(1, "ScienceDirect");
+        psInsert.setString(1, "3");
         psInsert.setString(2, "ScienceDirect");
         psInsert.setString(3, "https://www.sciencedirect.com/");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('ScienceDirect', 'ScienceDirect', 'https://www.sciencedirect.com/')' ");
 
-        psInsert.setString(1, "SpringerLink");
+        psInsert.setString(1, "4");
         psInsert.setString(2, "SpringerLink");
         psInsert.setString(3, "https://link.springer.com/");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('SpringerLink', 'SpringerLink', 'https://link.springer.com/') ");
 
-        psInsert.setString(1, "Scopus");
+        psInsert.setString(1, "5");
         psInsert.setString(2, "Scopus");
         psInsert.setString(3, "https://www.scopus.com/");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('Scopus', 'Scopus', 'https://www.scopus.com/') ");
 
-        psInsert.setString(1, "WebOfScience");
+        psInsert.setString(1, "6");
         psInsert.setString(2, "Web of Science");
         psInsert.setString(3, "https://mjl.clarivate.com/home");
         psInsert.executeUpdate();
-        System.out.println("Inserted ('WebOfScience', 'Web of Science', 'https://mjl.clarivate.com/home') ");
+        System.out.println("Inserted rows in digitalLibraries ");
     }
 
     public static void dropTable(Statement s) throws SQLException {

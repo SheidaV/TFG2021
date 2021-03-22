@@ -5,6 +5,7 @@ import org.jbibtex.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -22,7 +23,8 @@ public class Pruebas {
                 String aux = authors.toUserString().replaceAll("[\n]", "");
                 aux = aux.replaceAll("[{-}]", "");
 
-                System.out.println(aux);
+                ArrayList<Integer> ret = new ArrayList<>();
+                System.out.println(ret.size());
                 //author.insertRows(aux,s);
             }
         }

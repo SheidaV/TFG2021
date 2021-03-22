@@ -8,8 +8,9 @@ import java.util.ArrayList;
 public class researcher {
     public static void createTable(Statement s) {
         try {
-            s.execute("create table researchers( name varchar(50), " +
-                    "PRIMARY KEY (name)) ");
+            s.execute("create table researchers( idRes INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                    "name varchar(50), " +
+                    "PRIMARY KEY (idRes)) ");
             System.out.println("Created table researchers");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))
@@ -32,32 +33,41 @@ public class researcher {
         return ret;
     }
 
-    public static boolean exists(Statement s, String name) throws SQLException {
-        ArrayList<String> ret = new ArrayList<>();
-        ResultSet rs = s.executeQuery("SELECT name FROM researchers");
-        while(rs.next()) {
-            ret.add(rs.getString("name"));
-        }
-        return ret.contains(name);
-    }
-
-    public static boolean insertRow(Statement s, String name) throws SQLException {
-        if (!exists(s,name)) {
-            String query = "INSERT INTO researchers VALUES (\'" + name + "\')";
+    public static int insertRow(Statement s, String name) throws SQLException {
+        try{
+            String query = "INSERT INTO researchers(name) VALUES (\'" + name + "\')";
             System.out.println(query);
             s.execute(query);
-            System.out.println("Inserted row with name in researchers");
-            return true;
+            System.out.println("Inserted row with idRes name in researchers");
+            s.getConnection().commit();
+        } catch (SQLException e) {
+            if (e.getSQLState().equals("23505"))
+                System.out.println("Researcher exists");
+            else {
+                while (e != null) {
+                    System.err.println("\n----- SQLException -----");
+                    System.err.println("  SQL State:  " + e.getSQLState());
+                    System.err.println("  Error Code: " + e.getErrorCode());
+                    System.err.println("  Message:    " + e.getMessage());
+                    // for stack traces, refer to derby.log or uncomment this:
+                    //e.printStackTrace(System.err);
+                    e = e.getNextException();
+                }
+            }
         }
-        return false;
+        ResultSet rs = s.executeQuery("SELECT idRes FROM researchers where name = '" + name + "'");
+        rs.next();
+        return rs.getInt(1);
     }
 
-    public static String[] insertRows(String names, Statement s) throws SQLException {
+    public static Integer[] insertRows(String names, Statement s) throws SQLException {
         String[] splitArray = names.split("and ");
+        Integer[] ret = new Integer[splitArray.length];
+        int i = 0;
         for(String x : splitArray) {
-            insertRow(s,x);
+            ret[i++] = insertRow(s,x);
         }
-        return splitArray;
+        return ret;
     }
 
 }

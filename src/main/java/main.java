@@ -18,8 +18,7 @@ public class main {
         Properties props = new Properties();
         props.put("user", "user1");
         props.put("password", "user1");
-        //props.put("derby.language.sequence.preallocator", "1");
-        //props.put("shutdown", true);
+        props.put("derby.language.sequence.preallocator", "1");
         return props;
     }
 
@@ -34,7 +33,7 @@ public class main {
         ArrayList<Statement> statements = new ArrayList<>(); // list of Statements, PreparedStatements
         Statement s;
         try{
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true", props );
             System.out.println("Connected to and created database " + dbName);
             conn.setAutoCommit(false);
 
@@ -45,12 +44,6 @@ public class main {
             crearTablas(s,conn,statements);
             //deleteTables(s,conn,statements);
 
-            /*ResultSet rs = digitalLibrary.getAllData(s);
-            System.out.println("Información de la tabla:");
-            while (rs.next()) {
-                for (int i = 1; i<= 3; i++)
-                    System.out.println(rs.getString(i));
-            }*/
             conn.commit();
             System.out.println("Committed the transaction");
 
@@ -69,7 +62,6 @@ public class main {
     }
 
     private static void pruebaReference() throws IOException, ParseException, SQLException {
-        try{
 
             Connection conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
             Statement s = conn.createStatement();
@@ -80,34 +72,19 @@ public class main {
             String nameDL = aux[1];
             System.out.println("SimpleApp starting in " + framework + " mode");
 
-
-            reference.importar(path, nameDL, s,conn);
+            reference.importar(path, nameDL, s);
             // Select data
             rs = reference.getAllData(s);
 
             while (rs.next()){
-                for(int i= 1; i<17; i++) {
+                for(int i = 1; i<=15; i++) {
                     System.out.println(rs.getString(i));
                 }
             }
-            // delete the table
-            //reference.dropTable(s);
-
             conn.commit();
             System.out.println("Committed the transaction");
 
-        } catch (SQLException e){
-            System.out.println("Error");
-            while (e != null) {
-                System.err.println("\n----- SQLException -----");
-                System.err.println("  SQL State:  " + e.getSQLState());
-                System.err.println("  Error Code: " + e.getErrorCode());
-                System.err.println("  Message:    " + e.getMessage());
-                // for stack traces, refer to derby.log or uncomment this:
-                //e.printStackTrace(System.err);
-                e = e.getNextException();
-            }
-        }
+
     }
 
     private static void crearTablas(Statement s, Connection conn, ArrayList<Statement> statements) throws SQLException {
@@ -116,18 +93,20 @@ public class main {
             //insert rows in table
             digitalLibrary.insertRows(conn, statements);
         researcher.createTable(s);
-        reference.createTable(s);
-        author.createTable(s);
         venue.createTable(s);
+        company.createTable(s);
+        reference.createTable(s);
         affiliation.createTable(s);
+        author.createTable(s);
     }
 
     private static void deleteTables(Statement s, Connection conn, ArrayList<Statement> statements) throws SQLException {
-        venue.dropTable(s);
         affiliation.dropTable(s);
+        company.dropTable(s);
         author.dropTable(s);
         researcher.dropTable(s);
         reference.dropTable(s);
+        venue.dropTable(s);
         digitalLibrary.dropTable(s);
     }
 }
