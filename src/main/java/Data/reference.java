@@ -194,7 +194,7 @@ public class reference {
             s.execute("create table referencias(idRef INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, " +
                     "INCREMENT BY 1), type varchar(50), doi varchar(50), citeKey varchar(50), " +
                     "idVen int, title varchar(200), journal varchar(100), keywords varchar(1000), number INT, " +
-                    "numpages INT, pages varchar(20), volume INT, año INT, abstract varchar(2000), idDL int, " +
+                    "numpages INT, pages varchar(20), volume INT, año INT, abstract varchar(3000), idDL int, " +
                     "PRIMARY KEY (idRef), CONSTRAINT DL_FK_R FOREIGN KEY (idDL) REFERENCES digitalLibraries (idDL)," +
                     "CONSTRAINT VEN_FK_R FOREIGN KEY (idVen) REFERENCES venues (idVen))");
             //UNIQUE EN DOI
