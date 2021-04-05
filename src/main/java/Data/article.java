@@ -34,7 +34,7 @@ public class article {
             System.out.println(i+1 + ". " + DLs.get(i));
         try {
             int num=entrada.nextInt() - 1;
-            if (num > 0 & num < DLs.size()) {
+            if (num >= 0 & num < DLs.size()) {
                 idDL = getIDs(s).get(num);
                 System.out.println("Se ha escogido " + idDL + ". " + DLs.get(num));
             } else {
