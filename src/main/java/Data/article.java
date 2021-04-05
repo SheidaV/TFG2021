@@ -253,10 +253,12 @@ public class article {
                 else queryIni.append(", ");
                 queryIni.append(" keywords = '").append(keywords.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if ((rs.getString(8) == null ) & (!number.toUserString().replaceAll("[{-}]", "").equals(""))) {
-                if (first) first = false;
-                else queryIni.append(", ");
-                queryIni.append(" number = ").append(number.toUserString().replaceAll("[{-}]", ""));
+            if ((rs.getString(8) == null ) & (number != null )) {
+                if (!number.toUserString().replaceAll("[{-}]", "").equals("")){
+                    if (first) first = false;
+                    else queryIni.append(", ");
+                    queryIni.append(" number = ").append(number.toUserString().replaceAll("[{-}]", ""));
+                }
             }
             if ((rs.getString(9) == null ) & (numpages != null)) {
                 if (first) first = false;
@@ -268,10 +270,12 @@ public class article {
                 else queryIni.append(", ");
                 queryIni.append(" pages = '").append(pages.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if ((rs.getString(11) == null ) &(!volume.toUserString().replaceAll("[{-}]", "").equals(""))){
-                if (first) first = false;
-                else queryIni.append(", ");
-                queryIni.append(" volume = ").append(volume.toUserString().replaceAll("[{-}]", ""));
+            if ((rs.getString(11) == null) & (volume != null )) {
+                if (!volume.toUserString().replaceAll("[{-}]", "").equals("")) {
+                    if (first) first = false;
+                    else queryIni.append(", ");
+                    queryIni.append(" volume = ").append(volume.toUserString().replaceAll("[{-}]", ""));
+                }
             }
             if ((rs.getString(12) == null ) &(year != null)) {
                 if (first) first = false;
@@ -296,7 +300,7 @@ public class article {
             }
             query = queryIni.toString() + queryEnd;
 
-            if (query.length() > 65) {
+            if (!first) {
                 System.out.println(query );
                 s.execute(query);
             }
