@@ -147,9 +147,11 @@ public class article {
                 atributsOfRow.append(", keywords");
                 valuesOfRow.append(", '").append(keywords.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if (!number.toUserString().replaceAll("[{-}]", "").equals("")) {
-                atributsOfRow.append(", number");
-                valuesOfRow.append(", ").append(number.toUserString().replaceAll("[{-}]", ""));
+            if (number != null ) {
+                if (!number.toUserString().replaceAll("[{-}]", "").equals("")) {
+                    atributsOfRow.append(", number");
+                    valuesOfRow.append(", ").append(number.toUserString().replaceAll("[{-}]", ""));
+                }
             }
             if (numpages != null) {
                 atributsOfRow.append(", numpages");
@@ -159,9 +161,11 @@ public class article {
                 atributsOfRow.append(", pages");
                 valuesOfRow.append(", '").append(pages.toUserString().replaceAll("[{-}]", "")).append("'");
             }
-            if (!volume.toUserString().replaceAll("[{-}]", "").equals("")) {
-                atributsOfRow.append(", volume");
-                valuesOfRow.append(", ").append(volume.toUserString().replaceAll("[{-}]", ""));
+            if (volume != null) {
+                if (!volume.toUserString().replaceAll("[{-}]", "").equals("")) {
+                    atributsOfRow.append(", volume");
+                    valuesOfRow.append(", ").append(volume.toUserString().replaceAll("[{-}]", ""));
+                }
             }
             if (year != null) {
                 atributsOfRow.append(", año");
