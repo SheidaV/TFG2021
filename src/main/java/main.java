@@ -1,7 +1,6 @@
 import Data.*;
 import org.jbibtex.ParseException;
 
-import javax.swing.plaf.nimbus.State;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -68,17 +67,17 @@ public class main {
             Statement s = conn.createStatement();
             conn.setAutoCommit(false);
             ResultSet rs;
-            String[] aux = reference.pedirInfo(s);
+            String[] aux = article.pedirInfo(s);
             String path = aux[0];
             String nameDL = aux[1];
             System.out.println("SimpleApp starting in " + framework + " mode");
 
-            reference.importar(path, nameDL, s);
+            article.importar(path, nameDL, s);
             // Select data
-            rs = reference.getAllData(s);
+            rs = article.getAllData(s);
 
             while (rs.next()){
-                for(int i = 1; i<=15; i++) {
+                for(int i = 1; i<=13; i++) {
                     System.out.println(rs.getString(i));
                 }
             }
@@ -96,6 +95,7 @@ public class main {
         researcher.createTable(s);
         venue.createTable(s);
         company.createTable(s);
+        article.createTable(s);
         reference.createTable(s);
         affiliation.createTable(s);
         author.createTable(s);
@@ -105,8 +105,9 @@ public class main {
         affiliation.dropTable(s);
         company.dropTable(s);
         author.dropTable(s);
-        researcher.dropTable(s);
         reference.dropTable(s);
+        researcher.dropTable(s);
+        article.dropTable(s);
         venue.dropTable(s);
         digitalLibrary.dropTable(s);
     }

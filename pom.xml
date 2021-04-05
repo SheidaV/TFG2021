@@ -19,6 +19,7 @@
             <artifactId>jbibtex</artifactId>
             <version>1.0.18</version>
         </dependency>
+
     </dependencies>
 
     <properties>

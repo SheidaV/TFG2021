@@ -8,9 +8,9 @@ public class affiliation {
     PRIMARY KEY (name));*/
     public static void createTable(Statement s) {
         try {
-            s.execute("create table affiliations(idCom int, idRef int, PRIMARY KEY (idCom,idRef), " +
+            s.execute("create table affiliations(idCom int, idA varchar(50), PRIMARY KEY (idCom,idA), " +
                     "CONSTRAINT COM_FK_AF FOREIGN KEY (idCom) REFERENCES companies( idCom )," +
-                    "CONSTRAINT REF_FK_AF FOREIGN KEY (idRef) REFERENCES referencias( idRef ))");
+                    "CONSTRAINT ART_FK_AF FOREIGN KEY (idA) REFERENCES articles( doi ))");
             System.out.println("Created table affiliations");
         } catch (SQLException t  ){
             if (t.getSQLState().equals("X0Y32"))
@@ -22,12 +22,19 @@ public class affiliation {
         s.execute("drop table affiliations");
         System.out.println("Dropped table affiliations");
     }
-    public static void insertRow(Statement s, int idCom, int idRef) throws SQLException {
-        String queryRow = "INSERT INTO affiliations(idCom,idRef) VALUES (";
+    public static void insertRow(Statement s, int idCom, String idA) throws SQLException {
+        String queryRow = "INSERT INTO affiliations(idCom, idA) VALUES (";
         String query;
-        query = queryRow + idCom + ", " + idRef + ")";
-        System.out.println(query);
-        s.execute(query);
-        System.out.println("Inserted row with idCom and idRef in affiliations");
+        query = queryRow + idCom + ", '" + idA + "')";
+        try {
+            System.out.println(query);
+            s.execute(query);
+            System.out.println("Inserted row with idCom and idA in affiliations");
+        }
+        catch(SQLException e) {
+            if (e.getSQLState().equals("23505"))
+                System.out.println("Affiliation exists");
+            else System.out.println("Error en insertRow Affiliation");
+        }
     }
 }
